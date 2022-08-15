@@ -2225,6 +2225,8 @@ bool Main::is_iterating() {
 // For performance metrics.
 static uint64_t physics_process_max = 0;
 static uint64_t idle_process_max = 0;
+static uint64_t render_process_max = 0;
+static uint64_t idle_script_process_max = 0;
 
 #ifndef TOOLS_ENABLED
 static uint64_t frame_delta_sync_time = 0;
@@ -2274,6 +2276,7 @@ bool Main::iteration() {
 
 	uint64_t physics_process_ticks = 0;
 	uint64_t idle_process_ticks = 0;
+	uint64_t idle_script_process_ticks = 0;
 
 	frame += ticks_elapsed;
 
@@ -2331,10 +2334,15 @@ bool Main::iteration() {
 	}
 
 	uint64_t idle_begin = OS::get_singleton()->get_ticks_usec();
+	uint64_t render_begin = 0;
+
 
 	if (OS::get_singleton()->get_main_loop()->idle(step * time_scale)) {
 		exit = true;
 	}
+	idle_script_process_ticks = OS::get_singleton()->get_ticks_usec() - idle_begin;
+	idle_script_process_max = MAX(idle_script_process_ticks, idle_process_max);
+
 	visual_server_callbacks->flush();
 	message_queue->flush();
 
@@ -2352,11 +2360,15 @@ bool Main::iteration() {
 			OS::get_singleton()->set_update_pending(has_changed);
 
 			if (has_changed) {
+                render_begin = OS::get_singleton()->get_ticks_usec();
 				VisualServer::get_singleton()->draw(true, scaled_step); // flush visual commands
+                render_process_max = MAX(OS::get_singleton()->get_ticks_usec()-render_begin, render_process_max);
 				Engine::get_singleton()->frames_drawn++;
 			}
 		} else {
+            render_begin = OS::get_singleton()->get_ticks_usec();
 			VisualServer::get_singleton()->draw(true, scaled_step); // flush visual commands
+            render_process_max = MAX(OS::get_singleton()->get_ticks_usec()-render_begin, render_process_max);
 			Engine::get_singleton()->frames_drawn++;
 			force_redraw_requested = false;
 		}
@@ -2407,8 +2419,12 @@ bool Main::iteration() {
 		Engine::get_singleton()->_fps = frames;
 		performance->set_process_time(USEC_TO_SEC(idle_process_max));
 		performance->set_physics_process_time(USEC_TO_SEC(physics_process_max));
+		performance->set_render_process_time(USEC_TO_SEC(render_process_max));
+		performance->set_script_process_time(USEC_TO_SEC(idle_script_process_ticks));
 		idle_process_max = 0;
+		idle_script_process_max = 0;
 		physics_process_max = 0;
+        render_process_max = 0;
 
 		frame %= 1000000;
 		frames = 0;

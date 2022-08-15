@@ -45,7 +45,9 @@ class Performance : public Object {
 	float _get_node_count() const;
 
 	float _process_time;
+	float _render_process_time;
 	float _physics_process_time;
+	float _script_process_time;
 
 public:
 	enum Monitor {
@@ -82,6 +84,8 @@ public:
 		PHYSICS_3D_ISLAND_COUNT,
 		//physics
 		AUDIO_OUTPUT_LATENCY,
+		TIME_RENDER_PROCESS,
+		TIME_SCRIPT_PROCESS,
 		MONITOR_MAX
 	};
 
@@ -97,7 +101,9 @@ public:
 	MonitorType get_monitor_type(Monitor p_monitor) const;
 
 	void set_process_time(float p_pt);
+	void set_render_process_time(float p_pt);
 	void set_physics_process_time(float p_pt);
+	void set_script_process_time(float p_pt);
 
 	static Performance *get_singleton() { return singleton; }
 

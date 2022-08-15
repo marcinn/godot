@@ -32,6 +32,12 @@
 		<constant name="TIME_PHYSICS_PROCESS" value="2" enum="Monitor">
 			Time it took to complete one physics frame, in seconds.
 		</constant>
+		<constant name="TIME_RENDER_PROCESS" value="31" enum="Monitor">
+			Time it took to render one frame, in seconds.
+		</constant>
+		<constant name="TIME_SCRIPT_PROCESS" value="32" enum="Monitor">
+			Time it took to run script _process() one frame, in seconds.
+		</constant>
 		<constant name="MEMORY_STATIC" value="3" enum="Monitor">
 			Static memory currently used, in bytes. Not available in release builds.
 		</constant>
@@ -116,7 +122,7 @@
 		<constant name="AUDIO_OUTPUT_LATENCY" value="30" enum="Monitor">
 			Output latency of the [AudioServer].
 		</constant>
-		<constant name="MONITOR_MAX" value="31" enum="Monitor">
+		<constant name="MONITOR_MAX" value="33" enum="Monitor">
 			Represents the size of the [enum Monitor] enum.
 		</constant>
 	</constants>

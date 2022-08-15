@@ -75,6 +75,8 @@ void Performance::_bind_methods() {
 	BIND_ENUM_CONSTANT(PHYSICS_3D_COLLISION_PAIRS);
 	BIND_ENUM_CONSTANT(PHYSICS_3D_ISLAND_COUNT);
 	BIND_ENUM_CONSTANT(AUDIO_OUTPUT_LATENCY);
+	BIND_ENUM_CONSTANT(TIME_RENDER_PROCESS);
+	BIND_ENUM_CONSTANT(TIME_SCRIPT_PROCESS);
 
 	BIND_ENUM_CONSTANT(MONITOR_MAX);
 }
@@ -123,6 +125,8 @@ String Performance::get_monitor_name(Monitor p_monitor) const {
 		"physics_3d/collision_pairs",
 		"physics_3d/islands",
 		"audio/output_latency",
+		"time/render_process",
+		"time/script_process",
 
 	};
 
@@ -137,6 +141,10 @@ float Performance::get_monitor(Monitor p_monitor) const {
 			return _process_time;
 		case TIME_PHYSICS_PROCESS:
 			return _physics_process_time;
+		case TIME_RENDER_PROCESS:
+			return _render_process_time;
+		case TIME_SCRIPT_PROCESS:
+			return _script_process_time;
 		case MEMORY_STATIC:
 			return Memory::get_mem_usage();
 		case MEMORY_DYNAMIC:
@@ -237,6 +245,8 @@ Performance::MonitorType Performance::get_monitor_type(Monitor p_monitor) const 
 		MONITOR_TYPE_QUANTITY,
 		MONITOR_TYPE_QUANTITY,
 		MONITOR_TYPE_TIME,
+		MONITOR_TYPE_TIME,
+		MONITOR_TYPE_TIME,
 
 	};
 
@@ -247,12 +257,22 @@ void Performance::set_process_time(float p_pt) {
 	_process_time = p_pt;
 }
 
+void Performance::set_render_process_time(float p_pt) {
+	_render_process_time = p_pt;
+}
+
 void Performance::set_physics_process_time(float p_pt) {
 	_physics_process_time = p_pt;
+}
+
+void Performance::set_script_process_time(float p_pt) {
+	_script_process_time = p_pt;
 }
 
 Performance::Performance() {
 	_process_time = 0;
 	_physics_process_time = 0;
+	_render_process_time = 0;
+	_script_process_time = 0;
 	singleton = this;
 }
