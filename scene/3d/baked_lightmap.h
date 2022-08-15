@@ -157,6 +157,7 @@ public:
 private:
 	Vector3 extents;
 	float default_texels_per_unit;
+	float force_lightmap_scale;
 	float bias;
 	BakeQuality bake_quality;
 	bool generate_atlas;
@@ -216,6 +217,9 @@ public:
 
 	void set_default_texels_per_unit(const float &p_extents);
 	float get_default_texels_per_unit() const;
+
+	void set_force_lightmap_scale(const float &p_extents);
+	float get_force_lightmap_scale() const;
 
 	void set_capture_propagation(float p_propagation);
 	float get_capture_propagation() const;

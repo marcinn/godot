@@ -318,7 +318,7 @@ Size2i BakedLightmap::_compute_lightmap_size(const MeshesFound &p_mesh) {
 		uv_area = 1.0;
 	}
 
-	int pixels = Math::round(ceil((1.0 / sqrt(uv_area)) * sqrt(area * default_texels_per_unit)));
+	int pixels = Math::round(ceil((1.0 / sqrt(uv_area)) * sqrt(area * default_texels_per_unit))) * force_lightmap_scale;
 	int size = CLAMP(pixels, 2, 4096);
 	return Vector2i(size, size);
 }
@@ -655,6 +655,10 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, String p_data_sa
 			lightmap_size = _compute_lightmap_size(mf);
 		}
 		lightmap_size *= mf.lightmap_scale;
+        float _nw = lightmap_size.x * force_lightmap_scale;
+        float _nh = lightmap_size.x * force_lightmap_scale;
+        lightmap_size.x = int(_nw);
+        lightmap_size.y = int(_nh);
 
 		Lightmapper::MeshData md;
 
@@ -1143,8 +1147,16 @@ void BakedLightmap::set_default_texels_per_unit(const float &p_bake_texels_per_u
 	default_texels_per_unit = MAX(0.0, p_bake_texels_per_unit);
 }
 
+void BakedLightmap::set_force_lightmap_scale(const float &p_bake_force_lightmap_scale) {
+	force_lightmap_scale = MAX(0.001, p_bake_force_lightmap_scale);
+}
+
 float BakedLightmap::get_default_texels_per_unit() const {
 	return default_texels_per_unit;
+}
+
+float BakedLightmap::get_force_lightmap_scale() const {
+	return force_lightmap_scale;
 }
 
 void BakedLightmap::set_capture_enabled(bool p_enable) {
@@ -1541,6 +1553,9 @@ void BakedLightmap::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_default_texels_per_unit", "texels"), &BakedLightmap::set_default_texels_per_unit);
 	ClassDB::bind_method(D_METHOD("get_default_texels_per_unit"), &BakedLightmap::get_default_texels_per_unit);
 
+	ClassDB::bind_method(D_METHOD("set_force_lightmap_scale", "factor"), &BakedLightmap::set_force_lightmap_scale);
+	ClassDB::bind_method(D_METHOD("get_force_lightmap_scale"), &BakedLightmap::get_force_lightmap_scale);
+
 	ClassDB::bind_method(D_METHOD("set_capture_propagation", "propagation"), &BakedLightmap::set_capture_propagation);
 	ClassDB::bind_method(D_METHOD("get_capture_propagation"), &BakedLightmap::get_capture_propagation);
 
@@ -1566,6 +1581,7 @@ void BakedLightmap::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_color"), "set_use_color", "is_using_color");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "bias", PROPERTY_HINT_RANGE, "0.00001,0.1,0.00001,or_greater"), "set_bias", "get_bias");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "default_texels_per_unit", PROPERTY_HINT_RANGE, "0.0,64.0,0.01,or_greater"), "set_default_texels_per_unit", "get_default_texels_per_unit");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "force_lightmap_scale", PROPERTY_HINT_RANGE, "0.001,16.0,0.01,or_greater"), "set_force_lightmap_scale", "get_force_lightmap_scale");
 
 	ADD_GROUP("Atlas", "atlas_");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "atlas_generate"), "set_generate_atlas", "is_generate_atlas_enabled");
@@ -1616,6 +1632,7 @@ BakedLightmap::BakedLightmap() {
 	extents = Vector3(10, 10, 10);
 
 	default_texels_per_unit = 16.0f;
+	force_lightmap_scale = 1.0f;
 	bake_quality = BAKE_QUALITY_MEDIUM;
 	capture_quality = BAKE_QUALITY_MEDIUM;
 	capture_propagation = 1;

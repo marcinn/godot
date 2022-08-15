@@ -54,6 +54,9 @@
 		<member name="default_texels_per_unit" type="float" setter="set_default_texels_per_unit" getter="get_default_texels_per_unit" default="16.0">
 			If a baked mesh doesn't have a UV2 size hint, this value will be used to roughly compute a suitable lightmap size.
 		</member>
+		<member name="force_lightmap_scale" type="float" setter="set_force_lightmap_scale" getter="get_force_lightmap_scale" default="1.0">
+            Force scale generated lightmaps (scale up/down UV2 size hint / default_texels_per_unit)
+		</member>
 		<member name="environment_custom_color" type="Color" setter="set_environment_custom_color" getter="get_environment_custom_color">
 			The environment color when [member environment_mode] is set to [constant ENVIRONMENT_MODE_CUSTOM_COLOR].
 		</member>
