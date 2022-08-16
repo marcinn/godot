@@ -464,7 +464,8 @@ public:
 	enum LightBakeMode {
 		LIGHT_BAKE_DISABLED,
 		LIGHT_BAKE_INDIRECT,
-		LIGHT_BAKE_ALL
+		LIGHT_BAKE_ALL,
+        LIGHT_BAKE_SHADOWMASK,
 	};
 
 	virtual void light_set_bake_mode(RID p_light, LightBakeMode p_bake_mode) = 0;

@@ -131,6 +131,9 @@ uniform highp mat4 world_transform;
 uniform highp vec4 lightmap_uv_rect;
 #endif //ubershader-skip
 
+#ifdef SKIP_DIRECTIONAL_ENERGY //ubershader-runtime
+#endif // SKIP_DIRECTIONAL_ENERGY //ubershader-runtime to force conditional generation
+
 #ifdef USE_LIGHT_DIRECTIONAL //ubershader-skip
 
 layout(std140) uniform DirectionalLightData { //ubo:3
@@ -611,6 +614,7 @@ VERTEX_SHADER_CODE
 #endif //ubershader-runtime
 
 #ifdef USE_LIGHT_DIRECTIONAL //ubershader-runtime
+#ifndef SKIP_DIRECTIONAL_ENERGY //ubershader-runtime
 
 	vec3 directional_diffuse = vec3(0.0);
 	vec3 directional_specular = vec3(0.0);
@@ -636,6 +640,7 @@ VERTEX_SHADER_CODE
 
 	specular_light_interp.rgb += directional_specular;
 
+#endif // SKIP_DIRECTIONAL_ENERGY //ubershader-runtime
 #endif //USE_LIGHT_DIRECTIONAL //ubershader-runtime
 
 #endif // USE_VERTEX_LIGHTING //ubershader-runtime
@@ -2269,6 +2274,7 @@ FRAGMENT_SHADER_CODE
 
 #endif //LIGHT_DIRECTIONAL_SHADOW //ubershader-runtime
 
+#ifndef SKIP_DIRECTIONAL_ENERGY
 #ifdef USE_VERTEX_LIGHTING //ubershader-runtime
 	diffuse_light *= mix(vec3(1.0), light_attenuation, diffuse_light_interp.a);
 	specular_light *= mix(vec3(1.0), light_attenuation, specular_light_interp.a);
@@ -2276,6 +2282,7 @@ FRAGMENT_SHADER_CODE
 #else //ubershader-runtime
 	light_compute(normal, -light_direction_attenuation.xyz, eye_vec, binormal, tangent, light_color_energy.rgb, light_attenuation, albedo, transmission, light_params.z * specular_blob_intensity, roughness, metallic, specular, rim, rim_tint, clearcoat, clearcoat_gloss, anisotropy, diffuse_light, specular_light, alpha);
 #endif //ubershader-runtime
+#endif //#SKIP_DIRECTIONAL_ENERGY //ubershader-runtime
 
 #endif //#USE_LIGHT_DIRECTIONAL //ubershader-runtime
 

@@ -2017,15 +2017,18 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
 
 		if (!p_shadow) {
 			bool use_directional = directional_light != nullptr;
+			bool use_directional_shadow = directional_light != nullptr;
 			if (p_directional_add) {
-				use_directional = use_directional && !(e->instance->baked_light && directional_light->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_ALL);
+                use_directional_shadow = use_directional && !(e->instance->baked_light && directional_light->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_ALL);
+				use_directional = use_directional && !(e->instance->baked_light && (directional_light->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_ALL || directional_light->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_SHADOWMASK));
 				use_directional = use_directional && ((e->instance->layer_mask & directional_light->light_ptr->cull_mask) != 0);
 				use_directional = use_directional && ((e->sort_key & SORT_KEY_UNSHADED_FLAG) == 0);
-				if (!use_directional) {
+				if (!use_directional && !use_directional_shadow) {
 					continue; // It's a directional-only pass and the directional light is disabled
 				}
 			} else {
 				use_directional = use_directional && (e->sort_key & SORT_KEY_NO_DIRECTIONAL_FLAG) == 0;
+                use_directional_shadow = use_directional;
 			}
 
 			if (shading != prev_shading) {
@@ -2060,7 +2063,8 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
 					state.scene_shader.set_conditional(SceneShaderGLES3::USE_FORWARD_LIGHTING, !p_directional_add);
 					state.scene_shader.set_conditional(SceneShaderGLES3::USE_VERTEX_LIGHTING, (e->sort_key & SORT_KEY_VERTEX_LIT_FLAG));
 
-					state.scene_shader.set_conditional(SceneShaderGLES3::USE_LIGHT_DIRECTIONAL, use_directional);
+					state.scene_shader.set_conditional(SceneShaderGLES3::USE_LIGHT_DIRECTIONAL, use_directional || use_directional_shadow);
+                    state.scene_shader.set_conditional(SceneShaderGLES3::SKIP_DIRECTIONAL_ENERGY, !use_directional && use_directional_shadow);
 					state.scene_shader.set_conditional(SceneShaderGLES3::LIGHT_DIRECTIONAL_SHADOW, false);
 					state.scene_shader.set_conditional(SceneShaderGLES3::LIGHT_USE_PSSM4, false);
 					state.scene_shader.set_conditional(SceneShaderGLES3::LIGHT_USE_PSSM2, false);
@@ -2070,7 +2074,7 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
 					state.scene_shader.set_conditional(SceneShaderGLES3::USE_RADIANCE_MAP, use_radiance_map);
 					state.scene_shader.set_conditional(SceneShaderGLES3::USE_CONTACT_SHADOWS, state.used_contact_shadows);
 
-					if (use_directional) {
+					if (use_directional_shadow) {
 						if (p_directional_shadows && directional_light->light_ptr->shadow) {
 							state.scene_shader.set_conditional(SceneShaderGLES3::LIGHT_DIRECTIONAL_SHADOW, true);
 
@@ -4082,7 +4086,6 @@ bool RasterizerSceneGLES3::_element_needs_directional_add(RenderList::Element *e
 
 	for (int i = 0; i < state.directional_light_count; i++) {
 		LightInstance *l = directional_lights[i];
-		// any unbaked and unculled light?
 		if (e->instance->baked_light && l->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_ALL) {
 			continue;
 		}

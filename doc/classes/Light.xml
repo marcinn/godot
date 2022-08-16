@@ -136,5 +136,8 @@
 			Both direct and indirect light will be baked.
 			[b]Note:[/b] You should hide the light if you don't want it to appear twice (dynamic and baked).
 		</constant>
+		<constant name="BAKE_SHADOWMASK" value="3" enum="BakeMode">
+			Both direct and indirect light will be baked, but will also cast dynamic shadows
+		</constant>
 	</constants>
 </class>

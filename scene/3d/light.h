@@ -63,7 +63,8 @@ public:
 	enum BakeMode {
 		BAKE_DISABLED,
 		BAKE_INDIRECT,
-		BAKE_ALL
+		BAKE_ALL,
+        BAKE_SHADOWMASK
 	};
 
 private:

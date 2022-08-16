@@ -796,16 +796,16 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, String p_data_sa
 				// this part of the code will never be called either.
 				WARN_PRINT(vformat("The DirectionalLight \"%s\" is configured to cast shadows, but the DirectionalLight \"%s\" before it is already used for shadowmasking. This will lead to incorrect shadows in the distance.\nTo resolve this, set the DirectionalLight \"%s\"'s bake mode to Disabled or disable Use Shadowmask in the BakedLightmap node.", l->get_name(), shadowmasked_light_name, l->get_name()));
 			}
-			lightmapper->add_directional_light(light->get_bake_mode() == Light::BAKE_ALL, -xf.basis.get_axis(Vector3::AXIS_Z).normalized(), l->get_color(), l->get_param(Light::PARAM_ENERGY), l->get_param(Light::PARAM_INDIRECT_ENERGY), l->get_param(Light::PARAM_SIZE));
+			lightmapper->add_directional_light((light->get_bake_mode() == Light::BAKE_ALL || light->get_bake_mode() == Light::BAKE_SHADOWMASK), -xf.basis.get_axis(Vector3::AXIS_Z).normalized(), l->get_color(), l->get_param(Light::PARAM_ENERGY), l->get_param(Light::PARAM_INDIRECT_ENERGY), l->get_param(Light::PARAM_SIZE));
 			if (use_shadowmask) {
 				shadowmasked_light_name = l->get_name();
 			}
 		} else if (Object::cast_to<OmniLight>(light)) {
 			OmniLight *l = Object::cast_to<OmniLight>(light);
-			lightmapper->add_omni_light(light->get_bake_mode() == Light::BAKE_ALL, xf.origin, l->get_color(), l->get_param(Light::PARAM_ENERGY), l->get_param(Light::PARAM_INDIRECT_ENERGY), l->get_param(Light::PARAM_RANGE), l->get_param(Light::PARAM_ATTENUATION), l->get_param(Light::PARAM_SIZE));
+			lightmapper->add_omni_light((light->get_bake_mode() == Light::BAKE_ALL || light->get_bake_mode() == Light::BAKE_SHADOWMASK), xf.origin, l->get_color(), l->get_param(Light::PARAM_ENERGY), l->get_param(Light::PARAM_INDIRECT_ENERGY), l->get_param(Light::PARAM_RANGE), l->get_param(Light::PARAM_ATTENUATION), l->get_param(Light::PARAM_SIZE));
 		} else if (Object::cast_to<SpotLight>(light)) {
 			SpotLight *l = Object::cast_to<SpotLight>(light);
-			lightmapper->add_spot_light(light->get_bake_mode() == Light::BAKE_ALL, xf.origin, -xf.basis.get_axis(Vector3::AXIS_Z).normalized(), l->get_color(), l->get_param(Light::PARAM_ENERGY), l->get_param(Light::PARAM_INDIRECT_ENERGY), l->get_param(Light::PARAM_RANGE), l->get_param(Light::PARAM_ATTENUATION), l->get_param(Light::PARAM_SPOT_ANGLE), l->get_param(Light::PARAM_SPOT_ATTENUATION), l->get_param(Light::PARAM_SIZE));
+			lightmapper->add_spot_light((light->get_bake_mode() == Light::BAKE_ALL || light->get_bake_mode() == Light::BAKE_SHADOWMASK), xf.origin, -xf.basis.get_axis(Vector3::AXIS_Z).normalized(), l->get_color(), l->get_param(Light::PARAM_ENERGY), l->get_param(Light::PARAM_INDIRECT_ENERGY), l->get_param(Light::PARAM_RANGE), l->get_param(Light::PARAM_ATTENUATION), l->get_param(Light::PARAM_SPOT_ANGLE), l->get_param(Light::PARAM_SPOT_ATTENUATION), l->get_param(Light::PARAM_SIZE));
 		}
 	}
 
@@ -959,13 +959,13 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, String p_data_sa
 			LightsFound &lf = lights_found.write[i];
 			switch (lf.light->get_light_type()) {
 				case VS::LIGHT_DIRECTIONAL: {
-					voxel_baker.plot_light_directional(-lf.xform.basis.get_axis(2), lf.light->get_color(), lf.light->get_param(Light::PARAM_ENERGY), lf.light->get_param(Light::PARAM_INDIRECT_ENERGY), lf.light->get_bake_mode() == Light::BAKE_ALL);
+					voxel_baker.plot_light_directional(-lf.xform.basis.get_axis(2), lf.light->get_color(), lf.light->get_param(Light::PARAM_ENERGY), lf.light->get_param(Light::PARAM_INDIRECT_ENERGY), (lf.light->get_bake_mode() == Light::BAKE_ALL || lf.light->get_bake_mode() == Light::BAKE_SHADOWMASK));
 				} break;
 				case VS::LIGHT_OMNI: {
-					voxel_baker.plot_light_omni(lf.xform.origin, lf.light->get_color(), lf.light->get_param(Light::PARAM_ENERGY), lf.light->get_param(Light::PARAM_INDIRECT_ENERGY), lf.light->get_param(Light::PARAM_RANGE), lf.light->get_param(Light::PARAM_ATTENUATION), lf.light->get_bake_mode() == Light::BAKE_ALL);
+					voxel_baker.plot_light_omni(lf.xform.origin, lf.light->get_color(), lf.light->get_param(Light::PARAM_ENERGY), lf.light->get_param(Light::PARAM_INDIRECT_ENERGY), lf.light->get_param(Light::PARAM_RANGE), lf.light->get_param(Light::PARAM_ATTENUATION), (lf.light->get_bake_mode() == Light::BAKE_ALL || lf.light->get_bake_mode() == Light::BAKE_SHADOWMASK));
 				} break;
 				case VS::LIGHT_SPOT: {
-					voxel_baker.plot_light_spot(lf.xform.origin, lf.xform.basis.get_axis(2), lf.light->get_color(), lf.light->get_param(Light::PARAM_ENERGY), lf.light->get_param(Light::PARAM_INDIRECT_ENERGY), lf.light->get_param(Light::PARAM_RANGE), lf.light->get_param(Light::PARAM_ATTENUATION), lf.light->get_param(Light::PARAM_SPOT_ANGLE), lf.light->get_param(Light::PARAM_SPOT_ATTENUATION), lf.light->get_bake_mode() == Light::BAKE_ALL);
+					voxel_baker.plot_light_spot(lf.xform.origin, lf.xform.basis.get_axis(2), lf.light->get_color(), lf.light->get_param(Light::PARAM_ENERGY), lf.light->get_param(Light::PARAM_INDIRECT_ENERGY), lf.light->get_param(Light::PARAM_RANGE), lf.light->get_param(Light::PARAM_ATTENUATION), lf.light->get_param(Light::PARAM_SPOT_ANGLE), lf.light->get_param(Light::PARAM_SPOT_ATTENUATION), (lf.light->get_bake_mode() == Light::BAKE_ALL || lf.light->get_bake_mode() == Light::BAKE_SHADOWMASK));
 
 				} break;
 			}
