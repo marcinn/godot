@@ -1794,7 +1794,7 @@ void RasterizerSceneGLES3::_setup_light(RenderList::Element *e, const Transform 
 				continue; // Not visible
 			}
 
-			if (e->instance->baked_light && li->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_ALL) {
+			if (e->instance->baked_light && (li->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_ALL || li->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_SHADOWMASK)) {
 				continue; // This light is already included in the lightmap
 			}
 
@@ -2064,7 +2064,6 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
 					state.scene_shader.set_conditional(SceneShaderGLES3::USE_VERTEX_LIGHTING, (e->sort_key & SORT_KEY_VERTEX_LIT_FLAG));
 
 					state.scene_shader.set_conditional(SceneShaderGLES3::USE_LIGHT_DIRECTIONAL, use_directional || use_directional_shadow);
-                    state.scene_shader.set_conditional(SceneShaderGLES3::SKIP_DIRECTIONAL_ENERGY, !use_directional && use_directional_shadow);
 					state.scene_shader.set_conditional(SceneShaderGLES3::LIGHT_DIRECTIONAL_SHADOW, false);
 					state.scene_shader.set_conditional(SceneShaderGLES3::LIGHT_USE_PSSM4, false);
 					state.scene_shader.set_conditional(SceneShaderGLES3::LIGHT_USE_PSSM2, false);
@@ -4086,7 +4085,7 @@ bool RasterizerSceneGLES3::_element_needs_directional_add(RenderList::Element *e
 
 	for (int i = 0; i < state.directional_light_count; i++) {
 		LightInstance *l = directional_lights[i];
-		if (e->instance->baked_light && l->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_ALL) {
+		if (e->instance->baked_light && (l->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_ALL || l->light_ptr->bake_mode == VS::LightBakeMode::LIGHT_BAKE_SHADOWMASK)) {
 			continue;
 		}
 		if ((e->instance->layer_mask & l->light_ptr->cull_mask) == 0) {
