@@ -64,11 +64,20 @@ def configure(env):
         env.Append(CCFLAGS=["-gdwarf-2", "-O0"])
         env.Append(CPPDEFINES=["_DEBUG", ("DEBUG", 1)])
 
-    if env["use_lto"]:
-        env.Append(CCFLAGS=["-flto"])
-        env.Append(LINKFLAGS=["-flto"])
+    ## LTO
 
-    ## Architecture
+    if env["lto"] == "auto":  # Disable by default as it makes linking in Xcode very slow.
+        env["lto"] = "none"
+
+    if env["lto"] != "none":
+        if env["lto"] == "thin":
+            env.Append(CCFLAGS=["-flto=thin"])
+            env.Append(LINKFLAGS=["-flto=thin"])
+        else:
+            env.Append(CCFLAGS=["-flto"])
+            env.Append(LINKFLAGS=["-flto"])
+
+    # Architecture
     if env["arch"] == "x86":  # i386
         env["bits"] = "32"
     elif env["arch"] == "x86_64":
@@ -120,6 +129,10 @@ def configure(env):
         env.Append(LINKFLAGS=["-miphoneos-version-min=10.0"])
 
     if env["arch"] == "x86" or env["arch"] == "x86_64":
+        if not env["ios_simulator"]:
+            print("ERROR: Building for iOS with 'arch=x86_64' or 'arch=x86' requires 'ios_simulator=yes'.")
+            sys.exit(255)
+
         env["ENV"]["MACOSX_DEPLOYMENT_TARGET"] = "10.9"
         arch_flag = "i386" if env["arch"] == "x86" else env["arch"]
         env.Append(

@@ -127,6 +127,21 @@ def configure(env):
         env["AS"] = basecmd + "as"
         env.Append(CPPDEFINES=["__MACPORTS__"])  # hack to fix libvpx MM256_BROADCASTSI128_SI256 define
 
+    # LTO
+
+    if env["lto"] == "auto":  # LTO benefits for macOS (size, performance) haven't been clearly established yet.
+        env["lto"] = "none"
+
+    if env["lto"] != "none":
+        if env["lto"] == "thin":
+            env.Append(CCFLAGS=["-flto=thin"])
+            env.Append(LINKFLAGS=["-flto=thin"])
+        else:
+            env.Append(CCFLAGS=["-flto"])
+            env.Append(LINKFLAGS=["-flto"])
+
+    # Sanitizers
+
     if env["use_ubsan"] or env["use_asan"] or env["use_lsan"] or env["use_tsan"]:
         env.extra_suffix += "s"
 

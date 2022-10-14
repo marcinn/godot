@@ -730,6 +730,10 @@ void Viewport::set_size(const Size2 &p_size) {
 	_update_stretch_transform();
 	update_configuration_warning();
 
+	for (Set<ViewportTexture *>::Element *E = viewport_textures.front(); E; E = E->next()) {
+		E->get()->emit_changed();
+	}
+
 	emit_signal("size_changed");
 }
 
@@ -3031,7 +3035,7 @@ String Viewport::get_configuration_warning() const {
 		warning += TTR("The Viewport size must be greater than or equal to 2 pixels on both dimensions to render anything.");
 	}
 
-	if (hdr && (usage == USAGE_2D || usage == USAGE_2D_NO_SAMPLING)) {
+	if (!VisualServer::get_singleton()->is_low_end() && hdr && (usage == USAGE_2D || usage == USAGE_2D_NO_SAMPLING)) {
 		if (warning != String()) {
 			warning += "\n\n";
 		}
