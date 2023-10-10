@@ -418,3 +418,7 @@ ImageLoaderDDS::ImageLoaderDDS() {
 void ImageLoaderDDS::get_recognized_extensions(List<String> *p_extensions) const {
 	p_extensions->push_back("dds");
 }
+
+void ImageLoaderDDS::get_recognized_extensions_to_import(List<String> *p_extensions) const {
+	while(p_extensions->erase("dds")) {};
+}

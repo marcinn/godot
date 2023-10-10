@@ -277,7 +277,7 @@ CPUParticles2DEditorPlugin::CPUParticles2DEditorPlugin() {
 
 	file = memnew(EditorFileDialog);
 	List<String> ext;
-	ImageLoader::get_recognized_extensions(&ext);
+	ImageLoader::get_recognized_extensions_to_import(&ext);
 	for (const String &E : ext) {
 		file->add_filter("*." + E, E.to_upper());
 	}

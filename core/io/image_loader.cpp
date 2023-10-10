@@ -50,6 +50,10 @@ bool ImageFormatLoader::recognize(const String &p_extension) const {
 	return false;
 }
 
+void ImageFormatLoader::get_recognized_extensions_to_import(List<String> *p_extension) const {
+	get_recognized_extensions(p_extension);
+}
+
 Error ImageFormatLoaderExtension::load_image(Ref<Image> p_image, Ref<FileAccess> p_fileaccess, BitField<ImageFormatLoader::LoaderFlags> p_flags, float p_scale) {
 	Error err = ERR_UNAVAILABLE;
 	GDVIRTUAL_CALL(_load_image, p_image, p_fileaccess, p_flags, p_scale, err);
@@ -107,6 +111,12 @@ Error ImageLoader::load_image(String p_file, Ref<Image> p_image, Ref<FileAccess>
 	}
 
 	return ERR_FILE_UNRECOGNIZED;
+}
+
+void ImageLoader::get_recognized_extensions_to_import(List<String> *p_extensions) {
+	for (int i = 0; i < loader.size(); i++) {
+		loader[i]->get_recognized_extensions_to_import(p_extensions);
+	}
 }
 
 void ImageLoader::get_recognized_extensions(List<String> *p_extensions) {
