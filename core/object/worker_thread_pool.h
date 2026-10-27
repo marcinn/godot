@@ -294,6 +294,9 @@ public:
 	static uint32_t thread_enter_unlock_allowance_zone(const SafeBinaryMutex<Tag> &p_mutex) { return UINT32_MAX; }
 	static void thread_exit_unlock_allowance_zone(uint32_t p_zone_id) {}
 #endif
+	// Sleeps with the mutexes of the calling thread's unlock allowance zones released, as waiting
+	// on a task does. For waits on other threads that don't go through the pool.
+	static void thread_delay_usec_unlocked(uint32_t p_usec);
 
 	void init(int p_thread_count = -1, float p_low_priority_task_ratio = 0.3);
 	void exit_languages_threads();

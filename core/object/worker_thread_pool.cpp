@@ -806,6 +806,16 @@ void WorkerThreadPool::thread_exit_unlock_allowance_zone(uint32_t p_zone_id) {
 }
 #endif
 
+void WorkerThreadPool::thread_delay_usec_unlocked(uint32_t p_usec) {
+	if (singleton) {
+		singleton->_unlock_unlockable_mutexes();
+	}
+	OS::get_singleton()->delay_usec(p_usec);
+	if (singleton) {
+		singleton->_lock_unlockable_mutexes();
+	}
+}
+
 void WorkerThreadPool::init(int p_thread_count, float p_low_priority_task_ratio) {
 	ERR_FAIL_COND(threads.size() > 0);
 

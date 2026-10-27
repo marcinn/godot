@@ -489,7 +489,11 @@ void ResourceLoader::_run_load_task(void *p_userdata) {
 				// This is not the most optimal thing to do, but it is safe. Either the
 				// dependency will complete soon, or will block soon when we can safely
 				// yield.
-				OS::get_singleton()->delay_usec(1000);
+				// The thread loading the dependency may in turn be blocked on a mutex this
+				// thread is allowed to unlock while waiting (e.g., GDScriptCache's, held
+				// while compiling a script that preloads the dependency). Release such
+				// mutexes while sleeping, as waiting within the WorkerThreadPool does.
+				WorkerThreadPool::thread_delay_usec_unlocked(1000);
 			}
 		} while (wait && status == THREAD_LOAD_IN_PROGRESS && !cleaning_tasks);
 
